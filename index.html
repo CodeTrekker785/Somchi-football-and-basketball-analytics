@@ -1,0 +1,3696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Analyzer Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset & Base */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #222222;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border-color: #2a2a2a;
+      --football-green: #4ade80;
+      --basketball-orange: #fb923c;
+      --analytics-blue: #60a5fa;
+      --win-green: #22c55e;
+      --loss-red: #ef4444;
+      --neutral-yellow: #eab308;
+      --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .font-mono {
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3a3a3a;
+    }
+
+    /* Selection */
+    ::selection {
+      background-color: rgba(74, 222, 128, 0.3);
+      color: white;
+    }
+
+    /* Utility Classes */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding: 0 1.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        padding: 0 2rem;
+      }
+    }
+
+    .glass {
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .glass-light {
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--football-green), var(--basketball-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .glow-green {
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.3), 0 0 60px rgba(74, 222, 128, 0.1);
+    }
+
+    .live-pulse {
+      animation: livePulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+    }
+
+    .float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .card-hover {
+      transition: all 400ms var(--ease-expo-out);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      transition: all 500ms var(--ease-expo-out);
+      height: 80px;
+    }
+
+    .navbar.scrolled {
+      height: 64px;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--football-green), var(--basketball-orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg {
+      width: 24px;
+      height: 24px;
+      color: black;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .logo-text {
+        display: block;
+      }
+    }
+
+    .logo-text span {
+      color: var(--football-green);
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      position: relative;
+      transition: color 300ms var(--ease-expo-out);
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: white;
+      transition: all 300ms var(--ease-expo-out);
+      transform: translateX(-50%);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .live-btn {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 300ms;
+    }
+
+    .live-btn:hover {
+      border-color: rgba(74, 222, 128, 0.5);
+    }
+
+    @media (min-width: 768px) {
+      .live-btn {
+        display: flex;
+      }
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--loss-red);
+    }
+
+    .mobile-menu-btn {
+      display: flex;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    @media (min-width: 768px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+
+    .mobile-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 400ms var(--ease-expo-out);
+    }
+
+    .mobile-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .mobile-menu a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: all 300ms;
+    }
+
+    .mobile-menu a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .mobile-live-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+      border-radius: 9999px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: white;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 80px;
+      overflow: hidden;
+    }
+
+    .hero-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .orb-green {
+      top: 25%;
+      left: -8rem;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(74, 222, 128, 0.25) 0%, transparent 70%);
+      filter: blur(80px);
+      animation: drift 20s ease-in-out infinite;
+    }
+
+    .orb-orange {
+      bottom: 25%;
+      right: -8rem;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(251, 146, 60, 0.2) 0%, transparent 70%);
+      filter: blur(60px);
+      animation: drift 15s ease-in-out infinite reverse;
+    }
+
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(30px, -20px); }
+      50% { transform: translate(-20px, 30px); }
+      75% { transform: translate(20px, 20px); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding: 5rem 1rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .hero-title {
+        font-size: 4rem;
+      }
+    }
+
+    .hero-subtitle {
+      font-size: 1.125rem;
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 500px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 300ms var(--ease-spring);
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--football-green);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background: var(--win-green);
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--basketball-orange);
+      color: black;
+    }
+
+    .btn-secondary:hover {
+      background: #f97316;
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(251, 146, 60, 0.3);
+    }
+
+    .hero-stats {
+      display: none;
+      position: relative;
+      height: 400px;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-stats {
+        display: block;
+      }
+    }
+
+    .stat-card {
+      position: absolute;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card-1 {
+      top: 0;
+      right: 0;
+    }
+
+    .stat-card-2 {
+      top: 33%;
+      right: 25%;
+      animation-delay: 0.5s;
+    }
+
+    .stat-card-3 {
+      bottom: 0;
+      right: 33%;
+      animation-delay: 1s;
+    }
+
+    .stat-card-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.green {
+      background: rgba(74, 222, 128, 0.2);
+    }
+
+    .stat-icon.orange {
+      background: rgba(251, 146, 60, 0.2);
+    }
+
+    .stat-icon.blue {
+      background: rgba(96, 165, 250, 0.2);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .hero-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 8rem;
+      background: linear-gradient(to top, var(--bg-primary), transparent);
+      pointer-events: none;
+    }
+
+    /* Sport Selector */
+    .sport-selector {
+      padding: 4rem 0;
+    }
+
+    .selector-container {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .sport-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 2rem;
+      border-radius: 1rem;
+      background: var(--bg-secondary);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 400ms var(--ease-spring);
+    }
+
+    .sport-tab:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sport-tab.active.football {
+      background: var(--bg-card);
+      border-color: var(--football-green);
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.2);
+    }
+
+    .sport-tab.active.basketball {
+      background: var(--bg-card);
+      border-color: var(--basketball-orange);
+      box-shadow: 0 0 30px rgba(251, 146, 60, 0.2);
+    }
+
+    .sport-tab-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 300ms;
+    }
+
+    .sport-tab.active.football .sport-tab-icon {
+      background: var(--football-green);
+    }
+
+    .sport-tab.active.basketball .sport-tab-icon {
+      background: var(--basketball-orange);
+    }
+
+    .sport-tab:not(.active).football .sport-tab-icon {
+      background: rgba(74, 222, 128, 0.2);
+    }
+
+    .sport-tab:not(.active).basketball .sport-tab-icon {
+      background: rgba(251, 146, 60, 0.2);
+    }
+
+    .sport-tab-icon svg {
+      width: 24px;
+      height: 24px;
+      transition: color 300ms;
+    }
+
+    .sport-tab.active.football .sport-tab-icon svg {
+      color: black;
+    }
+
+    .sport-tab.active.basketball .sport-tab-icon svg {
+      color: black;
+    }
+
+    .sport-tab:not(.active).football .sport-tab-icon svg {
+      color: var(--football-green);
+    }
+
+    .sport-tab:not(.active).basketball .sport-tab-icon svg {
+      color: var(--basketball-orange);
+    }
+
+    .sport-tab-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      transition: color 300ms;
+    }
+
+    .sport-tab:not(.active) .sport-tab-title {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .sport-tab-subtitle {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .sport-indicator {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .sport-indicator span {
+      font-weight: 600;
+    }
+
+    .sport-indicator .football {
+      color: var(--football-green);
+    }
+
+    .sport-indicator .basketball {
+      color: var(--basketball-orange);
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 4rem 0;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .section-title {
+        font-size: 2.5rem;
+      }
+    }
+
+    .section-subtitle {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Live Matches */
+    .matches-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 640px) {
+      .matches-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .matches-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--loss-red);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 300ms;
+      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .filter-tab:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .filter-tab.active {
+      background: white;
+      color: black;
+    }
+
+    .matches-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .matches-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .match-card {
+      position: relative;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 400ms var(--ease-expo-out);
+      overflow: hidden;
+    }
+
+    .match-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .match-card.live {
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .match-card.upcoming {
+      border-color: rgba(96, 165, 250, 0.3);
+    }
+
+    .match-card.finished {
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .match-league {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .match-time {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .match-time.live {
+      color: var(--loss-red);
+    }
+
+    .match-time.upcoming {
+      color: var(--analytics-blue);
+    }
+
+    .match-time.finished {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .match-teams {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .match-team {
+      flex: 1;
+    }
+
+    .match-team:last-child {
+      text-align: right;
+    }
+
+    .match-team-name {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .match-team-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .match-score {
+      padding: 0 1.5rem;
+      font-size: 2rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .match-score-divider {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .match-score-winner {
+      color: var(--football-green);
+    }
+
+    .match-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .match-stat {
+      text-align: center;
+    }
+
+    .match-stat-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 0.25rem;
+    }
+
+    .match-stat-values {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .match-stat-divider {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .match-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(251, 146, 60, 0.1));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms;
+    }
+
+    .match-card:hover .match-overlay {
+      opacity: 1;
+    }
+
+    /* Player Analyzer */
+    .analyzer-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .analyzer-grid {
+        grid-template-columns: 2fr 3fr;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 3rem;
+      border-radius: 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: white;
+      font-size: 0.875rem;
+      transition: all 300ms;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: rgba(74, 222, 128, 0.5);
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .player-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 300ms var(--ease-expo-out);
+      text-align: left;
+    }
+
+    .player-item:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .player-item.active {
+      background: var(--bg-card);
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+
+    .player-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(251, 146, 60, 0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .player-avatar svg {
+      width: 24px;
+      height: 24px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .player-info {
+      flex: 1;
+    }
+
+    .player-name {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-team {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .player-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .player-rating svg {
+      width: 16px;
+      height: 16px;
+      color: var(--football-green);
+    }
+
+    .player-rating-value {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .player-detail {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .player-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .player-detail-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(251, 146, 60, 0.2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .player-detail-avatar svg {
+      width: 40px;
+      height: 40px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .player-detail-info h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .player-detail-meta {
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .player-detail-stats {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .player-detail-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .player-detail-rating svg {
+      width: 20px;
+      height: 20px;
+      color: var(--football-green);
+    }
+
+    .player-detail-rating span {
+      font-size: 1.25rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .player-detail-divider {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .player-detail-form {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+
+    .player-stats-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .player-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .radar-chart {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--bg-primary);
+    }
+
+    .radar-chart-title {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .radar-labels {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .radar-label {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+    }
+
+    .stat-bar-label {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .stat-bar-value {
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .stat-bar-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 800ms var(--ease-expo-out);
+    }
+
+    .stat-bar-fill.green {
+      background: var(--football-green);
+    }
+
+    .stat-bar-fill.orange {
+      background: var(--basketball-orange);
+    }
+
+    .recent-form {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .recent-form-title {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.75rem;
+    }
+
+    .recent-form-grid {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .recent-form-item {
+      flex: 1;
+      height: 48px;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .recent-form-item.excellent {
+      background: rgba(74, 222, 128, 0.2);
+      color: var(--football-green);
+    }
+
+    .recent-form-item.good {
+      background: rgba(96, 165, 250, 0.2);
+      color: var(--analytics-blue);
+    }
+
+    .recent-form-item.average {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Team Comparison */
+    .comparison-arena {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .comparison-arena {
+        grid-template-columns: 1fr auto 1fr;
+      }
+    }
+
+    .comparison-team {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    .comparison-team-a {
+      border: 1px solid rgba(96, 165, 250, 0.3);
+    }
+
+    .comparison-team-b {
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .team-logo {
+      width: 96px;
+      height: 96px;
+      border-radius: 1rem;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .team-logo svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    .team-name {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .team-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    .team-wins {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .vs-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vs-circle {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--football-green), var(--basketball-orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: vsFloat 3s ease-in-out infinite;
+    }
+
+    .vs-circle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: inherit;
+      filter: blur(20px);
+      opacity: 0.5;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .vs-text {
+      position: relative;
+      font-size: 2rem;
+      font-weight: 900;
+      color: black;
+    }
+
+    @keyframes vsFloat {
+      0%, 100% { transform: translateY(0) rotateY(0deg); }
+      50% { transform: translateY(-5px) rotateY(5deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+    }
+
+    .comparison-stats {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .comparison-stats-title {
+      font-size: 1.125rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .comparison-stat-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .comparison-stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .comparison-stat-value {
+      font-size: 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .comparison-stat-value.left {
+      text-align: right;
+    }
+
+    .comparison-stat-center {
+      text-align: center;
+    }
+
+    .comparison-stat-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .comparison-stat-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .comparison-stat-bar-fill {
+      height: 100%;
+      transition: width 600ms var(--ease-expo-out);
+    }
+
+    .win-probability {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .win-probability-title {
+      font-size: 1.125rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .probability-bar {
+      height: 48px;
+      border-radius: 9999px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .probability-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: black;
+      transition: width 1000ms var(--ease-expo-out);
+    }
+
+    .probability-segment.team-a {
+      background: var(--analytics-blue);
+    }
+
+    .probability-segment.draw {
+      background: var(--neutral-yellow);
+    }
+
+    .probability-segment.team-b {
+      background: var(--loss-red);
+    }
+
+    .probability-legend {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .probability-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .probability-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    /* Predictive Analytics */
+    .prediction-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(74, 222, 128, 0.2), rgba(251, 146, 60, 0.2));
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .prediction-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--football-green);
+    }
+
+    .featured-prediction {
+      position: relative;
+      padding: 2rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .featured-prediction-glow {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 256px;
+      height: 256px;
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(251, 146, 60, 0.2));
+      border-radius: 50%;
+      filter: blur(60px);
+      transform: translate(50%, -50%);
+    }
+
+    .featured-prediction-content {
+      position: relative;
+    }
+
+    .featured-prediction-header {
+      margin-bottom: 1rem;
+    }
+
+    .featured-prediction-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-prediction-label svg {
+      width: 16px;
+      height: 16px;
+      color: var(--football-green);
+    }
+
+    .featured-prediction-match {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-prediction-result {
+      font-size: 1.125rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .featured-prediction-result span {
+      color: var(--football-green);
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+    }
+
+    .confidence-meter {
+      margin-bottom: 1.5rem;
+    }
+
+    .confidence-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .confidence-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .confidence-value {
+      font-size: 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      color: var(--football-green);
+    }
+
+    .confidence-bar {
+      height: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, var(--football-green), var(--win-green));
+      background-size: 200% 100%;
+      animation: shimmer 2s linear infinite;
+      transition: width 1000ms var(--ease-expo-out);
+    }
+
+    .prediction-factors {
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .prediction-factors-title {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.75rem;
+    }
+
+    .prediction-factors-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .prediction-factor {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .prediction-factor svg {
+      width: 14px;
+      height: 14px;
+      color: var(--football-green);
+    }
+
+    .predictions-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .predictions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .prediction-card {
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 400ms var(--ease-expo-out);
+    }
+
+    .prediction-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .prediction-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .prediction-card-match {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.25rem;
+    }
+
+    .prediction-card-result {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .prediction-card-confidence {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .prediction-card-confidence.high {
+      background: rgba(74, 222, 128, 0.2);
+      color: var(--football-green);
+    }
+
+    .prediction-card-confidence.medium {
+      background: rgba(96, 165, 250, 0.2);
+      color: var(--analytics-blue);
+    }
+
+    .prediction-card-confidence.low {
+      background: rgba(234, 179, 8, 0.2);
+      color: var(--neutral-yellow);
+    }
+
+    .prediction-card-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .prediction-card-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 800ms var(--ease-expo-out);
+    }
+
+    .prediction-card-bar-fill.high {
+      background: var(--football-green);
+    }
+
+    .prediction-card-bar-fill.medium {
+      background: var(--analytics-blue);
+    }
+
+    .prediction-card-bar-fill.low {
+      background: var(--neutral-yellow);
+    }
+
+    .prediction-card-factors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .prediction-card-factor {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .prediction-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .prediction-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .prediction-stat {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+    }
+
+    .prediction-stat svg {
+      width: 20px;
+      height: 20px;
+      margin: 0 auto 0.5rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .prediction-stat-value {
+      font-size: 1.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .prediction-stat-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .prediction-disclaimer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .prediction-disclaimer svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Stats Overview */
+    .stats-overview {
+      position: relative;
+      padding: 5rem 0;
+      overflow: hidden;
+    }
+
+    .stats-overview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent, var(--bg-secondary), transparent);
+      pointer-events: none;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+      }
+    }
+
+    .stat-card-main {
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      transition: all 400ms var(--ease-expo-out);
+    }
+
+    .stat-card-main:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .stat-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 300ms;
+    }
+
+    .stat-card-main:hover .stat-card-icon {
+      transform: scale(1.1) rotate(6deg);
+    }
+
+    .stat-card-value {
+      font-size: 2rem;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    .stat-card-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.25rem;
+      height: 32px;
+    }
+
+    .stat-card-bar {
+      width: 8px;
+      border-radius: 2px 2px 0 0;
+      transition: height 300ms;
+    }
+
+    .stats-cta {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    .stats-cta p {
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .feature-card {
+      position: relative;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: all 400ms var(--ease-expo-out);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-card-glow {
+      position: absolute;
+      top: -5rem;
+      right: -5rem;
+      width: 10rem;
+      height: 10rem;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0;
+      transition: opacity 500ms;
+    }
+
+    .feature-card:hover .feature-card-glow {
+      opacity: 0.3;
+    }
+
+    .feature-icon {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 300ms;
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(3deg);
+    }
+
+    .feature-icon svg {
+      width: 28px;
+      height: 28px;
+      transition: transform 300ms;
+    }
+
+    .feature-card:hover .feature-icon svg {
+      transform: scale(1.1);
+    }
+
+    .feature-title {
+      position: relative;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      transition: color 300ms;
+    }
+
+    .feature-card:hover .feature-title {
+      color: white;
+    }
+
+    .feature-description {
+      position: relative;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .feature-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 300ms;
+    }
+
+    .feature-card:hover .feature-link {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-link svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 300ms;
+    }
+
+    .feature-link:hover svg {
+      transform: translateX(4px);
+    }
+
+    .features-cta {
+      position: relative;
+      margin-top: 3rem;
+      padding: 2rem;
+      border-radius: 1rem;
+      background: rgba(26, 26, 26, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .features-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(74, 222, 128, 0.1), transparent, rgba(251, 146, 60, 0.1));
+      pointer-events: none;
+    }
+
+    .features-cta-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      .features-cta-content {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+      }
+    }
+
+    .features-cta-text h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .features-cta-text p {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .features-cta-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Footer */
+    .footer {
+      position: relative;
+      padding: 5rem 0 2rem;
+      overflow: hidden;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary), var(--bg-card));
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      opacity: 0.5;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .footer-grid {
+      position: relative;
+      display: grid;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (min-width: 1024px) {
+      .footer-grid {
+        grid-template-columns: 2fr repeat(4, 1fr);
+      }
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-brand .logo {
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-newsletter-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-newsletter-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .footer-newsletter-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .footer-newsletter-input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .footer-newsletter-input {
+      width: 100%;
+      padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 0.875rem;
+      transition: all 300ms;
+    }
+
+    .footer-newsletter-input:focus {
+      outline: none;
+      border-color: rgba(74, 222, 128, 0.5);
+    }
+
+    .footer-newsletter-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .footer-newsletter-btn {
+      padding: 0.625rem 1rem;
+      border-radius: 0.5rem;
+      background: var(--football-green);
+      border: none;
+      color: black;
+      cursor: pointer;
+      transition: all 300ms;
+    }
+
+    .footer-newsletter-btn:hover {
+      background: var(--win-green);
+    }
+
+    .footer-links-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 300ms;
+      position: relative;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: white;
+      transition: width 300ms var(--ease-expo-out);
+    }
+
+    .footer-links a:hover::after {
+      width: 100%;
+    }
+
+    .footer-divider {
+      position: relative;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .footer-bottom {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    .footer-copyright {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .footer-social a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.5);
+      transition: all 300ms;
+    }
+
+    .footer-social a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .footer-social a svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 600ms var(--ease-expo-out);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      
+      .hero-canvas,
+      .orb {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-inner container">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <span class="logo-text">Sports Analyzer <span>Pro</span></span>
+      </a>
+      
+      <div class="nav-links">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#football">Football</a>
+        <a href="#basketball">Basketball</a>
+        <a href="#compare">Compare</a>
+        <a href="#analytics">Analytics</a>
+      </div>
+      
+      <button class="live-btn">
+        <span class="live-dot"></span>
+        <span>Live Scores</span>
+      </button>
+      
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#football">Football</a>
+      <a href="#basketball">Basketball</a>
+      <a href="#compare">Compare</a>
+      <a href="#analytics">Analytics</a>
+      <button class="mobile-live-btn">
+        <span class="live-dot"></span>
+        <span>Live Scores</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <canvas class="hero-canvas" id="particleCanvas"></canvas>
+    <div class="orb orb-green"></div>
+    <div class="orb orb-orange"></div>
+    
+    <div class="hero-content container">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <h1 class="hero-title">DOMINATE THE</h1>
+          <h1 class="hero-title">GAME WITH</h1>
+          <h1 class="hero-title text-gradient">DATA</h1>
+          <p class="hero-subtitle">Real-time football and basketball analytics. Player stats, team insights, and predictive analysis—all in one powerful dashboard.</p>
+          <div class="hero-buttons">
+            <a href="#football" class="btn btn-primary">
+              Explore Football
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+            <a href="#basketball" class="btn btn-secondary">
+              Analyze Basketball
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        
+        <div class="hero-stats">
+          <div class="stat-card stat-card-1 float">
+            <div class="stat-card-inner">
+              <div class="stat-icon green">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #4ade80;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div>
+                <p class="stat-value" style="color: #4ade80;">50K+</p>
+                <p class="stat-label">Players Analyzed</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card stat-card-2 float" style="animation-delay: 0.5s;">
+            <div class="stat-card-inner">
+              <div class="stat-icon orange">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #fb923c;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <p class="stat-value" style="color: #fb923c;">Real-time</p>
+                <p class="stat-label">Data Updates</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card stat-card-3 float" style="animation-delay: 1s;">
+            <div class="stat-card-inner">
+              <div class="stat-icon blue">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #60a5fa;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <p class="stat-value" style="color: #60a5fa;">99.8%</p>
+                <p class="stat-label">Prediction Accuracy</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hero-fade"></div>
+  </section>
+
+  <!-- Sport Selector -->
+  <section class="sport-selector" id="dashboard">
+    <div class="container">
+      <div class="selector-container">
+        <button class="sport-tab football active" data-sport="football" onclick="setSport('football')">
+          <div class="sport-tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <div>
+            <p class="sport-tab-title">FOOTBALL</p>
+            <p class="sport-tab-subtitle">Soccer Analytics</p>
+          </div>
+        </button>
+        
+        <button class="sport-tab basketball" data-sport="basketball" onclick="setSport('basketball')">
+          <div class="sport-tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="sport-tab-title">BASKETBALL</p>
+            <p class="sport-tab-subtitle">NBA & More</p>
+          </div>
+        </button>
+      </div>
+      
+      <p class="sport-indicator">
+        Currently viewing <span class="football" id="sportIndicator">Football</span> data and analytics
+      </p>
+    </div>
+  </section>
+
+  <!-- Live Matches -->
+  <section class="section" id="football">
+    <div class="container">
+      <div class="matches-header">
+        <div class="matches-title">
+          <h2 class="section-title">LIVE MATCHES</h2>
+          <div class="live-badge">
+            <span class="live-dot"></span>
+            <span id="liveCount">2 LIVE NOW</span>
+          </div>
+        </div>
+        
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+          <button class="filter-tab" data-filter="live" onclick="setFilter('live')">Live</button>
+          <button class="filter-tab" data-filter="upcoming" onclick="setFilter('upcoming')">Upcoming</button>
+          <button class="filter-tab" data-filter="finished" onclick="setFilter('finished')">Finished</button>
+        </div>
+      </div>
+      
+      <div class="matches-grid" id="matchesGrid">
+        <!-- Matches will be rendered by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Player Analyzer -->
+  <section class="section" id="basketball">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">PLAYER <span class="text-gradient">ANALYZER</span></h2>
+        <p class="section-subtitle">Deep dive into player performance metrics and statistics</p>
+      </div>
+      
+      <div class="analyzer-grid">
+        <div>
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" class="search-input" placeholder="Search players..." id="playerSearch">
+          </div>
+          
+          <div class="player-list" id="playerList">
+            <!-- Players will be rendered by JavaScript -->
+          </div>
+        </div>
+        
+        <div class="player-detail" id="playerDetail">
+          <!-- Player details will be rendered by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Comparison -->
+  <section class="section" id="compare">
+    <div class="container">
+      <div class="section-header" style="text-align: center;">
+        <h2 class="section-title">TEAM <span class="text-gradient">COMPARISON</span></h2>
+        <p class="section-subtitle">Head-to-head analysis and win probability predictions</p>
+      </div>
+      
+      <div class="comparison-arena" id="comparisonArena">
+        <!-- Comparison will be rendered by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Predictive Analytics -->
+  <section class="section" id="analytics">
+    <div class="container">
+      <div class="section-header" style="text-align: center;">
+        <div class="prediction-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <span>AI-Powered</span>
+        </div>
+        <h2 class="section-title">PREDICTIVE <span class="text-gradient">ANALYTICS</span></h2>
+        <p class="section-subtitle">Machine learning models predicting match outcomes with high accuracy</p>
+      </div>
+      
+      <div id="predictionsContainer">
+        <!-- Predictions will be rendered by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Overview -->
+  <section class="stats-overview">
+    <div class="container">
+      <div class="section-header" style="text-align: center;">
+        <h2 class="section-title">BY THE <span class="text-gradient">NUMBERS</span></h2>
+        <p class="section-subtitle">Our platform at a glance</p>
+      </div>
+      
+      <div class="stats-grid" id="statsGrid">
+        <!-- Stats will be rendered by JavaScript -->
+      </div>
+      
+      <div class="stats-cta">
+        <p>Join thousands of sports analysts and fans using our platform</p>
+        <button class="btn btn-primary">Get Started Free</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header" style="text-align: center;">
+        <h2 class="section-title">POWERFUL <span class="text-gradient">FEATURES</span></h2>
+        <p class="section-subtitle">Everything you need to analyze sports like a pro</p>
+      </div>
+      
+      <div class="features-grid" id="featuresGrid">
+        <!-- Features will be rendered by JavaScript -->
+      </div>
+      
+      <div class="features-cta">
+        <div class="features-cta-content">
+          <div class="features-cta-text">
+            <h3>Ready to elevate your sports analysis?</h3>
+            <p>Start using Sports Analyzer Pro today and get the edge you need.</p>
+          </div>
+          <div class="features-cta-buttons">
+            <button class="btn btn-primary">Start Free Trial</button>
+            <button class="btn btn-outline">View Demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <div class="logo-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span class="logo-text">Sports Analyzer <span>Pro</span></span>
+          </a>
+          <p>Data-driven insights for every fan. Real-time analytics, player statistics, and AI-powered predictions for football and basketball.</p>
+          
+          <p class="footer-newsletter-title">Stay in the game</p>
+          <form class="footer-newsletter-form" onsubmit="event.preventDefault(); alert('Thanks for subscribing!');">
+            <div class="footer-newsletter-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <input type="email" class="footer-newsletter-input" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="footer-newsletter-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </button>
+          </form>
+        </div>
+        
+        <div>
+          <h4 class="footer-links-title">Product</h4>
+          <ul class="footer-links">
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">Integrations</a></li>
+            <li><a href="#">Changelog</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="footer-links-title">Resources</h4>
+          <ul class="footer-links">
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Tutorials</a></li>
+            <li><a href="#">Community</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="footer-links-title">Company</h4>
+          <ul class="footer-links">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Partners</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="footer-links-title">Legal</h4>
+          <ul class="footer-links">
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Cookies</a></li>
+            <li><a href="#">Licenses</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-divider"></div>
+      
+      <div class="footer-bottom">
+        <p class="footer-copyright">© 2024 Sports Analyzer Pro. All rights reserved.</p>
+        
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+          <a href="#" aria-label="GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+          </a>
+          <a href="#" aria-label="Discord">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Data
+    const data = {
+      football: {
+        matches: [
+          {
+            id: '1',
+            league: 'Premier League',
+            homeTeam: 'Manchester City',
+            awayTeam: 'Arsenal',
+            homeScore: 2,
+            awayScore: 1,
+            status: 'live',
+            time: "67'",
+            stats: [
+              { label: 'Possession', home: '58%', away: '42%' },
+              { label: 'Shots', home: '12', away: '8' },
+              { label: 'Corners', home: '6', away: '3' },
+            ],
+          },
+          {
+            id: '2',
+            league: 'La Liga',
+            homeTeam: 'Real Madrid',
+            awayTeam: 'Barcelona',
+            homeScore: 1,
+            awayScore: 1,
+            status: 'live',
+            time: "72'",
+            stats: [
+              { label: 'Possession', home: '52%', away: '48%' },
+              { label: 'Shots', home: '10', away: '11' },
+              { label: 'Corners', home: '4', away: '5' },
+            ],
+          },
+          {
+            id: '3',
+            league: 'Champions League',
+            homeTeam: 'Bayern Munich',
+            awayTeam: 'PSG',
+            homeScore: 0,
+            awayScore: 0,
+            status: 'upcoming',
+            time: 'Today 20:00',
+            stats: [
+              { label: 'H2H Wins', home: '3', away: '2' },
+              { label: 'Form', home: 'WWDLW', away: 'WLWWL' },
+            ],
+          },
+          {
+            id: '4',
+            league: 'Serie A',
+            homeTeam: 'Juventus',
+            awayTeam: 'AC Milan',
+            homeScore: 2,
+            awayScore: 0,
+            status: 'finished',
+            time: 'FT',
+            stats: [
+              { label: 'Possession', home: '45%', away: '55%' },
+              { label: 'Shots', home: '8', away: '14' },
+              { label: 'Corners', home: '3', away: '7' },
+            ],
+          },
+        ],
+        players: [
+          {
+            id: '1',
+            name: 'Erling Haaland',
+            team: 'Manchester City',
+            position: 'ST',
+            rating: 91,
+            stats: [
+              { label: 'Finishing', value: 95, max: 100 },
+              { label: 'Pace', value: 89, max: 100 },
+              { label: 'Strength', value: 92, max: 100 },
+              { label: 'Positioning', value: 94, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Pace', value: 89 },
+              { label: 'Shooting', value: 94 },
+              { label: 'Passing', value: 65 },
+              { label: 'Dribbling', value: 80 },
+              { label: 'Defense', value: 45 },
+              { label: 'Physical', value: 92 },
+            ],
+            recentForm: [8.5, 9.0, 7.5, 8.0, 9.5, 8.5, 9.0, 8.0, 9.5, 10.0],
+          },
+          {
+            id: '2',
+            name: 'Kevin De Bruyne',
+            team: 'Manchester City',
+            position: 'CAM',
+            rating: 91,
+            stats: [
+              { label: 'Passing', value: 94, max: 100 },
+              { label: 'Vision', value: 95, max: 100 },
+              { label: 'Crossing', value: 93, max: 100 },
+              { label: 'Long Shots', value: 88, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Pace', value: 76 },
+              { label: 'Shooting', value: 85 },
+              { label: 'Passing', value: 94 },
+              { label: 'Dribbling', value: 87 },
+              { label: 'Defense', value: 65 },
+              { label: 'Physical', value: 78 },
+            ],
+            recentForm: [8.0, 8.5, 9.0, 7.5, 8.5, 9.0, 8.0, 8.5, 9.5, 8.5],
+          },
+          {
+            id: '3',
+            name: 'Mohamed Salah',
+            team: 'Liverpool',
+            position: 'RW',
+            rating: 89,
+            stats: [
+              { label: 'Dribbling', value: 90, max: 100 },
+              { label: 'Finishing', value: 91, max: 100 },
+              { label: 'Pace', value: 91, max: 100 },
+              { label: 'Composure', value: 88, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Pace', value: 91 },
+              { label: 'Shooting', value: 89 },
+              { label: 'Passing', value: 82 },
+              { label: 'Dribbling', value: 90 },
+              { label: 'Defense', value: 55 },
+              { label: 'Physical', value: 75 },
+            ],
+            recentForm: [8.0, 8.5, 7.0, 9.0, 8.5, 7.5, 8.0, 9.5, 8.5, 8.0],
+          },
+        ],
+        comparison: {
+          teamA: { name: 'Manchester City', color: '#60a5fa', wins: 22, goals: 68, cleanSheets: 14, possession: 62, passAccuracy: 89 },
+          teamB: { name: 'Liverpool', color: '#ef4444', wins: 20, goals: 62, cleanSheets: 12, possession: 58, passAccuracy: 86 },
+        },
+        predictions: [
+          { id: '1', match: 'Champions League Final', prediction: 'Real Madrid 2-1 Man City', confidence: 87, factors: ['Home advantage', 'Better head-to-head record', 'Key player form'] },
+          { id: '2', match: 'Arsenal vs Chelsea', prediction: 'Arsenal Win', confidence: 72, factors: ['Superior form', 'Home advantage', 'Strong defense'] },
+          { id: '3', match: 'Bayern vs Dortmund', prediction: 'Over 2.5 Goals', confidence: 68, factors: ['High scoring history', 'Attacking lineups', 'Weak defenses'] },
+        ],
+      },
+      basketball: {
+        matches: [
+          {
+            id: '1',
+            league: 'NBA',
+            homeTeam: 'Lakers',
+            awayTeam: 'Warriors',
+            homeScore: 98,
+            awayScore: 102,
+            status: 'live',
+            time: 'Q4 4:32',
+            stats: [
+              { label: 'FG%', home: '48%', away: '52%' },
+              { label: '3PT', home: '8', away: '12' },
+              { label: 'Rebounds', home: '42', away: '38' },
+            ],
+          },
+          {
+            id: '2',
+            league: 'NBA',
+            homeTeam: 'Celtics',
+            awayTeam: 'Heat',
+            homeScore: 112,
+            awayScore: 108,
+            status: 'live',
+            time: 'Q4 1:45',
+            stats: [
+              { label: 'FG%', home: '51%', away: '47%' },
+              { label: '3PT', home: '15', away: '10' },
+              { label: 'Rebounds', home: '45', away: '41' },
+            ],
+          },
+          {
+            id: '3',
+            league: 'NBA',
+            homeTeam: 'Nuggets',
+            awayTeam: 'Suns',
+            homeScore: 0,
+            awayScore: 0,
+            status: 'upcoming',
+            time: 'Today 22:00',
+            stats: [
+              { label: 'H2H Wins', home: '2', away: '3' },
+              { label: 'Form', home: 'LWWLW', away: 'WWLLW' },
+            ],
+          },
+          {
+            id: '4',
+            league: 'NBA',
+            homeTeam: 'Bucks',
+            awayTeam: '76ers',
+            homeScore: 118,
+            awayScore: 105,
+            status: 'finished',
+            time: 'FT',
+            stats: [
+              { label: 'FG%', home: '54%', away: '46%' },
+              { label: '3PT', home: '14', away: '9' },
+              { label: 'Rebounds', home: '48', away: '39' },
+            ],
+          },
+        ],
+        players: [
+          {
+            id: '1',
+            name: 'LeBron James',
+            team: 'Lakers',
+            position: 'SF',
+            rating: 96,
+            stats: [
+              { label: 'Scoring', value: 94, max: 100 },
+              { label: 'Playmaking', value: 92, max: 100 },
+              { label: 'Defense', value: 88, max: 100 },
+              { label: 'Athleticism', value: 95, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Scoring', value: 94 },
+              { label: 'Playmaking', value: 92 },
+              { label: 'Rebounding', value: 85 },
+              { label: 'Defense', value: 88 },
+              { label: 'Athleticism', value: 95 },
+              { label: 'IQ', value: 98 },
+            ],
+            recentForm: [28, 32, 25, 30, 35, 28, 31, 29, 33, 30],
+          },
+          {
+            id: '2',
+            name: 'Stephen Curry',
+            team: 'Warriors',
+            position: 'PG',
+            rating: 95,
+            stats: [
+              { label: '3PT Shooting', value: 99, max: 100 },
+              { label: 'Ball Handling', value: 97, max: 100 },
+              { label: 'Offensive IQ', value: 96, max: 100 },
+              { label: 'Free Throw', value: 94, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Scoring', value: 96 },
+              { label: 'Playmaking', value: 88 },
+              { label: 'Rebounding', value: 55 },
+              { label: 'Defense', value: 70 },
+              { label: 'Athleticism', value: 78 },
+              { label: 'IQ', value: 96 },
+            ],
+            recentForm: [32, 28, 35, 30, 38, 25, 33, 31, 29, 36],
+          },
+          {
+            id: '3',
+            name: 'Giannis Antetokounmpo',
+            team: 'Bucks',
+            position: 'PF',
+            rating: 94,
+            stats: [
+              { label: 'Finishing', value: 97, max: 100 },
+              { label: 'Defense', value: 94, max: 100 },
+              { label: 'Athleticism', value: 96, max: 100 },
+              { label: 'Rebounding', value: 92, max: 100 },
+            ],
+            radarStats: [
+              { label: 'Scoring', value: 92 },
+              { label: 'Playmaking', value: 78 },
+              { label: 'Rebounding', value: 92 },
+              { label: 'Defense', value: 94 },
+              { label: 'Athleticism', value: 96 },
+              { label: 'IQ', value: 85 },
+            ],
+            recentForm: [30, 28, 32, 35, 29, 31, 33, 28, 30, 34],
+          },
+        ],
+        comparison: {
+          teamA: { name: 'Lakers', color: '#fb923c', wins: 45, goals: 112, cleanSheets: 0, possession: 48, passAccuracy: 78 },
+          teamB: { name: 'Warriors', color: '#60a5fa', wins: 42, goals: 118, cleanSheets: 0, possession: 52, passAccuracy: 82 },
+        },
+        predictions: [
+          { id: '1', match: 'NBA Finals G7', prediction: 'Lakers 112-108 Celtics', confidence: 84, factors: ['Home court', 'Star player performance', 'Playoff experience'] },
+          { id: '2', match: 'Warriors vs Suns', prediction: 'Warriors Cover Spread', confidence: 71, factors: ['3PT shooting', 'Home advantage', 'Recent momentum'] },
+          { id: '3', match: 'Bucks vs Heat', prediction: 'Over 220.5 Points', confidence: 69, factors: ['Fast pace', 'Offensive efficiency', 'Weak defense'] },
+        ],
+      },
+    };
+
+    const statsData = [
+      { icon: 'users', value: 50, suffix: 'K+', label: 'Players Analyzed', color: '#4ade80' },
+      { icon: 'calendar', value: 1, suffix: 'M+', label: 'Matches Processed', color: '#fb923c' },
+      { icon: 'target', value: 99.8, suffix: '%', label: 'Prediction Accuracy', color: '#60a5fa' },
+      { icon: 'clock', value: 24, suffix: '/7', label: 'Real-time Updates', color: '#a78bfa' },
+      { icon: 'trending', value: 150, suffix: '+', label: 'Leagues Covered', color: '#f472b6' },
+      { icon: 'activity', value: 50, suffix: 'M+', label: 'Data Points', color: '#22d3ee' },
+      { icon: 'globe', value: 180, suffix: '+', label: 'Countries', color: '#fbbf24' },
+      { icon: 'award', value: 15, suffix: 'K+', label: 'Active Users', color: '#f87171' },
+    ];
+
+    const featuresData = [
+      { icon: 'zap', title: 'Real-time Data', description: 'Live scores, stats, and updates delivered instantly as the action unfolds on the field.', color: '#4ade80' },
+      { icon: 'user', title: 'Player Analytics', description: 'Deep dive into individual player performance with comprehensive metrics and visualizations.', color: '#fb923c' },
+      { icon: 'users', title: 'Team Insights', description: 'Tactical analysis, formation breakdowns, and team performance tracking over time.', color: '#60a5fa' },
+      { icon: 'brain', title: 'AI Predictions', description: 'Machine learning models predict match outcomes with impressive accuracy rates.', color: '#a78bfa' },
+      { icon: 'history', title: 'Historical Data', description: 'Access 10+ years of match history, trends, and statistical archives.', color: '#f472b6' },
+      { icon: 'bell', title: 'Custom Alerts', description: 'Get notified for key moments, goals, player milestones, and match events.', color: '#22d3ee' },
+    ];
+
+    // State
+    let currentSport = 'football';
+    let currentFilter = 'all';
+    let selectedPlayer = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavbar();
+      initParticles();
+      renderMatches();
+      renderPlayers();
+      renderComparison();
+      renderPredictions();
+      renderStats();
+      renderFeatures();
+      initScrollReveal();
+    });
+
+    // Navbar
+    function initNavbar() {
+      const navbar = document.getElementById('navbar');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('open');
+      });
+
+      // Close mobile menu on link click
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+        });
+      });
+    }
+
+    // Particle Canvas
+    function initParticles() {
+      const canvas = document.getElementById('particleCanvas');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let animationId;
+      let frameCount = 0;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      const particleCount = window.innerWidth < 768 ? 30 : 60;
+      const colors = ['#4ade80', '#fb923c', '#60a5fa'];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: Math.random() * 2 + 1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
+      }
+
+      function animate() {
+        frameCount++;
+        if (frameCount % 2 === 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          particles.forEach((particle, i) => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+
+            if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+            if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = particle.color;
+            ctx.fill();
+
+            if (i % 5 === 0) {
+              particles.slice(i + 1).forEach((other) => {
+                const dx = particle.x - other.x;
+                const dy = particle.y - other.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 100) {
+                  ctx.beginPath();
+                  ctx.moveTo(particle.x, particle.y);
+                  ctx.lineTo(other.x, other.y);
+                  ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 100)})`;
+                  ctx.lineWidth = 0.5;
+                  ctx.stroke();
+                }
+              });
+            }
+          });
+        }
+
+        animationId = requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+
+    // Set Sport
+    function setSport(sport) {
+      currentSport = sport;
+      
+      document.querySelectorAll('.sport-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelector(`.sport-tab[data-sport="${sport}"]`).classList.add('active');
+      
+      document.getElementById('sportIndicator').textContent = sport === 'football' ? 'Football' : 'Basketball';
+      document.getElementById('sportIndicator').className = sport;
+      
+      renderMatches();
+      renderPlayers();
+      renderComparison();
+      renderPredictions();
+    }
+
+    // Set Filter
+    function setFilter(filter) {
+      currentFilter = filter;
+      
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelector(`.filter-tab[data-filter="${filter}"]`).classList.add('active');
+      
+      renderMatches();
+    }
+
+    // Render Matches
+    function renderMatches() {
+      const matches = data[currentSport].matches;
+      const filtered = currentFilter === 'all' ? matches : matches.filter(m => m.status === currentFilter);
+      const liveCount = matches.filter(m => m.status === 'live').length;
+      
+      document.getElementById('liveCount').textContent = `${liveCount} LIVE NOW`;
+      
+      const grid = document.getElementById('matchesGrid');
+      grid.innerHTML = filtered.map(match => `
+        <div class="match-card ${match.status}">
+          <div class="match-header">
+            <div class="match-league">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+              ${match.league}
+            </div>
+            <div class="match-time ${match.status}">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              ${match.time}
+            </div>
+          </div>
+          <div class="match-teams">
+            <div class="match-team">
+              <p class="match-team-name">${match.homeTeam}</p>
+              <p class="match-team-label">Home</p>
+            </div>
+            <div class="match-score">
+              <span class="${match.homeScore > match.awayScore ? 'match-score-winner' : ''}">${match.homeScore}</span>
+              <span class="match-score-divider">-</span>
+              <span class="${match.awayScore > match.homeScore ? 'match-score-winner' : ''}">${match.awayScore}</span>
+            </div>
+            <div class="match-team">
+              <p class="match-team-name">${match.awayTeam}</p>
+              <p class="match-team-label">Away</p>
+            </div>
+          </div>
+          <div class="match-stats">
+            ${match.stats.map(stat => `
+              <div class="match-stat">
+                <p class="match-stat-label">${stat.label}</p>
+                <div class="match-stat-values">
+                  <span>${stat.home}</span>
+                  <span class="match-stat-divider">-</span>
+                  <span>${stat.away}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="match-overlay"></div>
+        </div>
+      `).join('');
+    }
+
+    // Render Players
+    function renderPlayers() {
+      const players = data[currentSport].players;
+      if (!selectedPlayer) selectedPlayer = players[0];
+      
+      const list = document.getElementById('playerList');
+      list.innerHTML = players.map(player => `
+        <button class="player-item ${player.id === selectedPlayer.id ? 'active' : ''}" onclick="selectPlayer('${player.id}')">
+          <div class="player-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div class="player-info">
+            <p class="player-name">${player.name}</p>
+            <p class="player-team">${player.team} • ${player.position}</p>
+          </div>
+          <div class="player-rating">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            <span class="player-rating-value">${player.rating}</span>
+          </div>
+        </button>
+      `).join('');
+      
+      renderPlayerDetail();
+    }
+
+    // Select Player
+    function selectPlayer(id) {
+      selectedPlayer = data[currentSport].players.find(p => p.id === id);
+      renderPlayers();
+    }
+
+    // Render Player Detail
+    function renderPlayerDetail() {
+      if (!selectedPlayer) return;
+      
+      const color = currentSport === 'football' ? '#4ade80' : '#fb923c';
+      const detail = document.getElementById('playerDetail');
+      
+      // Generate radar chart SVG
+      const size = 200;
+      const center = size / 2;
+      const radius = 80;
+      const angleStep = (Math.PI * 2) / selectedPlayer.radarStats.length;
+      
+      const points = selectedPlayer.radarStats.map((stat, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const r = (stat.value / 100) * radius;
+        return { x: center + r * Math.cos(angle), y: center + r * Math.sin(angle) };
+      });
+      
+      const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+      
+      detail.innerHTML = `
+        <div class="player-detail-header">
+          <div class="player-detail-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div class="player-detail-info">
+            <h3>${selectedPlayer.name}</h3>
+            <p class="player-detail-meta">${selectedPlayer.team} • ${selectedPlayer.position}</p>
+            <div class="player-detail-stats">
+              <div class="player-detail-rating">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span>${selectedPlayer.rating}</span>
+              </div>
+              <span class="player-detail-divider">|</span>
+              <div class="player-detail-form">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <span>Form: Excellent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="player-stats-grid">
+          <div class="radar-chart">
+            <p class="radar-chart-title">Skill Distribution</p>
+            <svg width="${size}" height="${size}" style="margin: 0 auto; display: block;">
+              ${[20, 40, 60, 80, 100].map(level => `
+                <circle cx="${center}" cy="${center}" r="${(level / 100) * radius}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+              `).join('')}
+              ${selectedPlayer.radarStats.map((_, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = center + radius * Math.cos(angle);
+                const y = center + radius * Math.sin(angle);
+                return `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.1)" stroke-width="1" />`;
+              }).join('')}
+              <path d="${pathData}" fill="${color}20" stroke="${color}" stroke-width="2" />
+            </svg>
+            <div class="radar-labels">
+              ${selectedPlayer.radarStats.map(stat => `<span class="radar-label">${stat.label}</span>`).join('')}
+            </div>
+          </div>
+          <div class="stat-bars">
+            <p style="font-size: 0.875rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">Key Attributes</p>
+            ${selectedPlayer.stats.map(stat => `
+              <div class="stat-bar-item">
+                <div class="stat-bar-header">
+                  <span class="stat-bar-label">${stat.label}</span>
+                  <span class="stat-bar-value">${stat.value}</span>
+                </div>
+                <div class="stat-bar-track">
+                  <div class="stat-bar-fill ${currentSport === 'football' ? 'green' : 'orange'}" style="width: ${(stat.value / stat.max) * 100}%"></div>
+                </div>
+              </div>
+            `).join('')}
+            <div class="recent-form">
+              <p class="recent-form-title">Recent Form (Last 10)</p>
+              <div class="recent-form-grid">
+                ${selectedPlayer.recentForm.map(score => {
+                  const threshold = currentSport === 'football' ? 8 : 30;
+                  const goodThreshold = currentSport === 'football' ? 7 : 25;
+                  const cls = score >= threshold ? 'excellent' : score >= goodThreshold ? 'good' : 'average';
+                  return `<div class="recent-form-item ${cls}">${score}</div>`;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Comparison
+    function renderComparison() {
+      const comp = data[currentSport].comparison;
+      const arena = document.getElementById('comparisonArena');
+      
+      const comparisons = [
+        { label: currentSport === 'football' ? 'Wins' : 'Wins', teamA: comp.teamA.wins, teamB: comp.teamB.wins },
+        { label: currentSport === 'football' ? 'Goals Scored' : 'Points/Gm', teamA: comp.teamA.goals, teamB: comp.teamB.goals },
+        { label: currentSport === 'football' ? 'Clean Sheets' : 'Def Rating', teamA: comp.teamA.cleanSheets || 110, teamB: comp.teamB.cleanSheets || 108 },
+        { label: currentSport === 'football' ? 'Possession %' : 'FG%', teamA: comp.teamA.possession, teamB: comp.teamB.possession },
+        { label: currentSport === 'football' ? 'Pass Accuracy' : '3PT%', teamA: comp.teamA.passAccuracy, teamB: comp.teamB.passAccuracy },
+      ];
+      
+      const winProb = { teamA: 45, draw: 28, teamB: 27 };
+      
+      arena.innerHTML = `
+        <div class="comparison-team comparison-team-a">
+          <div class="team-logo" style="background: ${comp.teamA.color}20;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: ${comp.teamA.color};">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="team-name">${comp.teamA.name}</h3>
+          <p class="team-label">Home Team</p>
+          <span class="team-wins" style="background: ${comp.teamA.color}30; color: ${comp.teamA.color};">${comp.teamA.wins} Wins</span>
+        </div>
+        
+        <div class="vs-badge">
+          <div class="vs-circle">
+            <span class="vs-text">VS</span>
+          </div>
+        </div>
+        
+        <div class="comparison-team comparison-team-b">
+          <div class="team-logo" style="background: ${comp.teamB.color}20;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: ${comp.teamB.color};">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="team-name">${comp.teamB.name}</h3>
+          <p class="team-label">Away Team</p>
+          <span class="team-wins" style="background: ${comp.teamB.color}30; color: ${comp.teamB.color};">${comp.teamB.wins} Wins</span>
+        </div>
+        
+        <div class="comparison-stats" style="grid-column: 1 / -1;">
+          <h4 class="comparison-stats-title">Head-to-Head Statistics</h4>
+          ${comparisons.map(c => `
+            <div class="comparison-stat-row">
+              <div class="comparison-stat-value left" style="color: ${c.teamA >= c.teamB ? comp.teamA.color : 'white'};">${c.teamA}</div>
+              <div class="comparison-stat-center">
+                <div class="comparison-stat-label">${c.label}</div>
+                <div class="comparison-stat-bar">
+                  <div class="comparison-stat-bar-fill" style="width: ${(c.teamA / (c.teamA + c.teamB)) * 100}%; background: ${comp.teamA.color};"></div>
+                  <div class="comparison-stat-bar-fill" style="width: ${(c.teamB / (c.teamA + c.teamB)) * 100}%; background: ${comp.teamB.color};"></div>
+                </div>
+              </div>
+              <div class="comparison-stat-value" style="color: ${c.teamB >= c.teamA ? comp.teamB.color : 'white'};">${c.teamB}</div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="win-probability" style="grid-column: 1 / -1;">
+          <h4 class="win-probability-title">AI Win Probability Prediction</h4>
+          <div class="probability-bar">
+            <div class="probability-segment team-a" style="width: ${winProb.teamA}%;">${winProb.teamA >= 20 ? winProb.teamA + '%' : ''}</div>
+            <div class="probability-segment draw" style="width: ${winProb.draw}%;">${winProb.draw >= 15 ? 'Draw ' + winProb.draw + '%' : ''}</div>
+            <div class="probability-segment team-b" style="width: ${winProb.teamB}%;">${winProb.teamB >= 20 ? winProb.teamB + '%' : ''}</div>
+          </div>
+          <div class="probability-legend">
+            <div class="probability-legend-item">
+              <div class="probability-dot" style="background: ${comp.teamA.color};"></div>
+              <span>${comp.teamA.name}</span>
+            </div>
+            <div class="probability-legend-item">
+              <div class="probability-dot" style="background: var(--neutral-yellow);"></div>
+              <span>Draw</span>
+            </div>
+            <div class="probability-legend-item">
+              <div class="probability-dot" style="background: ${comp.teamB.color};"></div>
+              <span>${comp.teamB.name}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Predictions
+    function renderPredictions() {
+      const predictions = data[currentSport].predictions;
+      const container = document.getElementById('predictionsContainer');
+      
+      const featured = predictions[0];
+      const secondary = predictions.slice(1);
+      
+      container.innerHTML = `
+        <div class="featured-prediction">
+          <div class="featured-prediction-glow"></div>
+          <div class="featured-prediction-content">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              <div class="featured-prediction-header">
+                <p class="featured-prediction-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  Featured Prediction
+                </p>
+                <h3 class="featured-prediction-match">${featured.match}</h3>
+                <p class="featured-prediction-result">Predicted Score: <span>${featured.prediction}</span></p>
+              </div>
+              <div class="confidence-meter">
+                <div class="confidence-header">
+                  <span class="confidence-label">AI Confidence</span>
+                  <span class="confidence-value">${featured.confidence}%</span>
+                </div>
+                <div class="confidence-bar">
+                  <div class="confidence-fill" style="width: ${featured.confidence}%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="prediction-factors">
+              <p class="prediction-factors-title">Key Factors</p>
+              <div class="prediction-factors-list">
+                ${featured.factors.map(f => `
+                  <span class="prediction-factor">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    ${f}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="predictions-grid">
+          ${secondary.map(p => {
+            const confClass = p.confidence >= 70 ? 'high' : p.confidence >= 60 ? 'medium' : 'low';
+            return `
+              <div class="prediction-card">
+                <div class="prediction-card-header">
+                  <div>
+                    <p class="prediction-card-match">${p.match}</p>
+                    <p class="prediction-card-result">${p.prediction}</p>
+                  </div>
+                  <span class="prediction-card-confidence ${confClass}">${p.confidence}%</span>
+                </div>
+                <div class="prediction-card-bar">
+                  <div class="prediction-card-bar-fill ${confClass}" style="width: ${p.confidence}%;"></div>
+                </div>
+                <div class="prediction-card-factors">
+                  ${p.factors.slice(0, 2).map(f => `<span class="prediction-card-factor">${f}</span>`).join('')}
+                  ${p.factors.length > 2 ? `<span class="prediction-card-factor">+${p.factors.length - 2} more</span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div class="prediction-stats">
+          <div class="prediction-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="prediction-stat-value">12,458</p>
+            <p class="prediction-stat-label">Predictions Made</p>
+          </div>
+          <div class="prediction-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <p class="prediction-stat-value">73.2%</p>
+            <p class="prediction-stat-label">Success Rate</p>
+          </div>
+          <div class="prediction-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <p class="prediction-stat-value">24</p>
+            <p class="prediction-stat-label">Active Models</p>
+          </div>
+          <div class="prediction-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <p class="prediction-stat-value">2.4M+</p>
+            <p class="prediction-stat-label">Data Points</p>
+          </div>
+        </div>
+        
+        <p class="prediction-disclaimer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Predictions are based on historical data and machine learning models. Results may vary.
+        </p>
+      `;
+    }
+
+    // Render Stats
+    function renderStats() {
+      const icons = {
+        users: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>',
+        calendar: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>',
+        target: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        clock: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        trending: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>',
+        activity: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>',
+        globe: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        award: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>',
+      };
+      
+      const grid = document.getElementById('statsGrid');
+      grid.innerHTML = statsData.map(stat => `
+        <div class="stat-card-main">
+          <div class="stat-card-icon" style="background: ${stat.color}20;">
+            ${icons[stat.icon]}
+          </div>
+          <p class="stat-card-value" style="color: ${stat.color};">${stat.value}${stat.suffix}</p>
+          <p class="stat-card-label">${stat.label}</p>
+          <div class="stat-card-chart">
+            ${[...Array(5)].map(() => `<div class="stat-card-bar" style="height: ${30 + Math.random() * 70}%; background: ${stat.color}40;"></div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Features
+    function renderFeatures() {
+      const icons = {
+        zap: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>',
+        user: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>',
+        users: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>',
+        brain: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>',
+        history: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+        bell: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>',
+      };
+      
+      const grid = document.getElementById('featuresGrid');
+      grid.innerHTML = featuresData.map(feature => `
+        <div class="feature-card">
+          <div class="feature-card-glow" style="background: ${feature.color};"></div>
+          <div class="feature-icon" style="background: ${feature.color}20;">
+            ${icons[feature.icon]}
+          </div>
+          <h3 class="feature-title">${feature.title}</h3>
+          <p class="feature-description">${feature.description}</p>
+          <a href="#" class="feature-link" style="color: ${feature.color};">
+            Learn more
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      `).join('');
+    }
+
+    // Scroll Reveal
+    function initScrollReveal() {
+      const reveals = document.querySelectorAll('.section-header, .matches-grid, .analyzer-grid, .comparison-arena, .predictions-grid, .stats-grid, .features-grid');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      reveals.forEach(el => {
+        el.classList.add('reveal');
+        observer.observe(el);
+      });
+    }
+
+    // Player search
+    document.getElementById('playerSearch')?.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.player-item');
+      items.forEach(item => {
+        const name = item.querySelector('.player-name').textContent.toLowerCase();
+        const team = item.querySelector('.player-team').textContent.toLowerCase();
+        item.style.display = (name.includes(query) || team.includes(query)) ? 'flex' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
